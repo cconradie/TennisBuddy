@@ -49,6 +49,15 @@ class MatchController(
         }
     }
 
+    /** Runs a command received from a watch. Ignored when no match is being played. */
+    fun apply(command: WatchCommand) {
+        when (command) {
+            WatchCommand.POINT_A -> pointWonBy(Player.A)
+            WatchCommand.POINT_B -> pointWonBy(Player.B)
+            WatchCommand.UNDO -> undo()
+        }
+    }
+
     /** Takes back the last point (also reopens a match that was just won). */
     fun undo() {
         val record = _data.value.current ?: return
