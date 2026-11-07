@@ -21,6 +21,8 @@ class InMemoryStorage(private var text: String? = null) : MatchStorage {
 data class StoreData(
     val current: MatchRecord? = null,
     val history: List<MatchRecord> = emptyList(),
+    /** The device owner's name; they are always side A ("you") in the register and statistics. */
+    val profileName: String = "",
 )
 
 class MatchRepository(private val storage: MatchStorage) {

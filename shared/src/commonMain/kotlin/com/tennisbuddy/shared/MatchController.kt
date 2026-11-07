@@ -26,7 +26,7 @@ class MatchController(
         closeMatch()
         val now = nowMillis()
         val record = MatchRecord(
-            id = "match-$now",
+            id = newId(now),
             format = format,
             sideA = normalizeNames(sideA, format.playersPerSide, "A"),
             sideB = normalizeNames(sideB, format.playersPerSide, "B"),
@@ -43,7 +43,7 @@ class MatchController(
         val newState = record.state.pointWonBy(player)
         if (newState.isOver) {
             val finished = record.copy(state = newState, endedAtMillis = nowMillis())
-            commit(StoreData(finished, upsert(_data.value.history, finished)))
+            commit(_data.value.copy(current = finished, history = upsert(_data.value.history, finished)))
         } else {
             commit(_data.value.copy(current = record.copy(state = newState)))
         }
@@ -54,7 +54,7 @@ class MatchController(
         val record = _data.value.current ?: return
         val previous = undoStack.removeLastOrNull() ?: return
         val reopened = record.copy(state = previous, endedAtMillis = null)
-        commit(StoreData(reopened, _data.value.history.filterNot { it.id == record.id }))
+        commit(_data.value.copy(current = reopened, history = _data.value.history.filterNot { it.id == record.id }))
     }
 
     /**
@@ -69,11 +69,24 @@ class MatchController(
         } else {
             upsert(_data.value.history, record.copy(endedAtMillis = nowMillis()))
         }
-        commit(StoreData(null, history))
+        commit(_data.value.copy(current = null, history = history))
+    }
+
+    fun setProfileName(name: String) {
+        commit(_data.value.copy(profileName = name.trim()))
     }
 
     fun deleteRecord(id: String) {
         commit(_data.value.copy(history = _data.value.history.filterNot { it.id == id }))
+    }
+
+    /** Unique even if two matches start in the same millisecond. */
+    private fun newId(now: Long): String {
+        val taken = _data.value.history.map { it.id }.toSet()
+        var id = "match-$now"
+        var n = 1
+        while (id in taken) id = "match-$now-${n++}"
+        return id
     }
 
     private fun upsert(history: List<MatchRecord>, record: MatchRecord): List<MatchRecord> =
