@@ -5,7 +5,7 @@ Kotlin Multiplatform project:
 
 | Module | Purpose |
 | --- | --- |
-| `shared/` | Scoring rules (`MatchState`) and `MatchController`, in `commonMain`. Targets Android, iOS, JVM. |
+| `shared/` | Scoring rules, singles/doubles match records, local match register and `MatchController`, in `commonMain`. Targets Android, iOS, JVM. |
 | `androidApp/` | Jetpack Compose UI. |
 | `iosApp/` | SwiftUI app (to be created in Xcode; see its README). |
 
@@ -24,3 +24,6 @@ device, so "deploy" means installing that APK locally:
 ./scripts/install-local.sh --from-ci  # install the latest CI-built APK (needs gh + adb)
 ```
 Or download the artifact from the Actions run and sideload it on your phone.
+
+Every push to `main` also publishes the APK as the **`latest-debug`** pre-release
+(Releases page, `tennisbuddy-debug.apk`), which is the easiest way to download it on a phone.
