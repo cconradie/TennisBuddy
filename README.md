@@ -24,3 +24,6 @@ device, so "deploy" means installing that APK locally:
 ./scripts/install-local.sh --from-ci  # install the latest CI-built APK (needs gh + adb)
 ```
 Or download the artifact from the Actions run and sideload it on your phone.
+
+Every push to `main` also publishes the APK as the **`latest-debug`** pre-release
+(Releases page, `tennisbuddy-debug.apk`), which is the easiest way to download it on a phone.
