@@ -1,5 +1,8 @@
 package com.tennisbuddy.shared
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class Player {
     A, B;
 
@@ -21,6 +24,7 @@ fun pointLabel(points: Int, opponentPoints: Int): String = when {
     }
 }
 
+@Serializable
 data class MatchConfig(
     val bestOfSets: Int = 3,
     val gamesPerSet: Int = 6,
@@ -33,12 +37,14 @@ data class MatchConfig(
     val setsToWin: Int get() = bestOfSets / 2 + 1
 }
 
+@Serializable
 data class SetScore(val a: Int = 0, val b: Int = 0) {
     fun games(p: Player) = if (p == Player.A) a else b
     fun withGame(p: Player) = if (p == Player.A) copy(a = a + 1) else copy(b = b + 1)
 }
 
 /** Immutable match state. Call [pointWonBy] to get the next state. */
+@Serializable
 data class MatchState(
     val config: MatchConfig = MatchConfig(),
     val completedSets: List<SetScore> = emptyList(),

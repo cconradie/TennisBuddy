@@ -5,7 +5,7 @@ Kotlin Multiplatform project:
 
 | Module | Purpose |
 | --- | --- |
-| `shared/` | Scoring rules (`MatchState`) and `MatchController`, in `commonMain`. Targets Android, iOS, JVM. |
+| `shared/` | Scoring rules, singles/doubles match records, local match register and `MatchController`, in `commonMain`. Targets Android, iOS, JVM. |
 | `androidApp/` | Jetpack Compose UI. |
 | `iosApp/` | SwiftUI app (to be created in Xcode; see its README). |
 

@@ -4,11 +4,11 @@ Tennis score-keeping app built with Kotlin Multiplatform: shared scoring logic, 
 
 ## Summary of current state
 
-- **`shared/`** (done): `Scoring.kt` has `MatchState`, `MatchConfig`, `SetScore`, `Player`. It is immutable; `pointWonBy(player)` returns the next state. Covers 0/15/30/40, deuce/advantage, win-by-two games, tiebreak at 6-6 (first to 7, win by 2), best-of-N sets, match winner. `MatchController.kt` wraps it in a `StateFlow` with undo and reset. Targets: Android, iOS (x64/arm64/simulator), JVM.
-- **`androidApp/`** (basic): Compose scoreboard in `MainActivity.kt` (point buttons, undo, new match). Not yet run on a device.
+- **`shared/`** (done): `Scoring.kt` has `MatchState`, `MatchConfig`, `SetScore`, `Player` (side A/B; a side is one player or a doubles pair). Immutable; `pointWonBy(player)` returns the next state. Covers 0/15/30/40, deuce/advantage, win-by-two games, tiebreak at 6-6 (first to 7, win by 2), best-of-N sets, match winner. `Records.kt` has `MatchFormat` (singles/doubles), `MatchRecord` (names, start/end time, state, score summary, elapsed time) and `formatDuration`. `MatchRepository.kt` saves everything as JSON through a platform `MatchStorage`. `MatchController.kt` runs the current match (start, point, undo, close) and keeps the register of past matches; state is a `StateFlow<StoreData>`. Targets: Android, iOS (x64/arm64/simulator), JVM.
+- **`androidApp/`** (working UI, untested on a device): Compose screens in `MainActivity.kt`: Home (resume + match register), Setup (asks singles or doubles first, then names), Match (live timer, scoreboard, undo, end match). `MatchViewModel.kt` keeps state across rotation and stores the JSON file in app-private storage. Launcher icon is an adaptive icon built from the supplied logo (`res/drawable-nodpi`, `res/mipmap-anydpi`); `ic_launcher-playstore.png` is the 512px store icon.
 - **`iosApp/`** (not started): README only; the Xcode project must be created on a Mac.
 - **Tooling:** Gradle wrapper 8.14.3, version catalog in `gradle/libs.versions.toml` (Kotlin 2.1.21, AGP 8.7.3), CI in `.github/workflows/ci.yml`.
-- **Verified:** the 9 scoring tests in `shared/src/commonTest` pass on the JVM. The Android and iOS builds have never been run (the cloud sandbox cannot reach Google's Maven repo).
+- **Verified:** the 19 tests in `shared/src/commonTest` (scoring, match register, JSON persistence) pass on the JVM. The Android and iOS builds have never been run (the cloud sandbox cannot reach Google's Maven repo).
 
 ## Commands
 
@@ -31,10 +31,10 @@ Always use the wrapper, never a system `gradle`:
 ## Plan
 
 1. **Confirm the build** (first priority). Run `./gradlew :shared:jvmTest :androidApp:assembleDebug` somewhere with Android SDK access (CI or a dev machine) and fix any Gradle config errors.
-2. **Android UI polish.** Move state to a lifecycle-aware `ViewModel` so rotation does not reset the match. Add a proper scoreboard layout, server indicator, tiebreak label, and a Material theme.
-3. **Match setup screen.** Player names, best of 1/3/5, optional no-ad scoring, optional match tiebreak instead of a final set.
+2. **Android UI polish.** Proper scoreboard layout, server indicator, Material theme using the logo colours, detail screen for a past match.
+3. **Match setup options.** Best of 1/3/5, optional no-ad scoring, optional match tiebreak instead of a final set, pause/resume for the timer.
 4. **Rules to add in `shared`** (with tests): no-ad games, serve tracking (alternate each game, tiebreak rotation), final-set tiebreak variants.
-5. **Persistence.** Save the in-progress match and match history (SQLDelight or DataStore, in `shared`).
+5. **Persistence upgrades.** Matches and the register are stored as a JSON file today; move to SQLDelight if the register needs querying or stats.
 6. **iOS app.** Create the Xcode project per `iosApp/README.md`, build a SwiftUI scoreboard on `MatchController`.
 7. **Release.** App icon, signing config, Play Store listing, CI artifacts.
 
